@@ -17,11 +17,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
+        // TODO: Facade class to handle all HockeyAuthentication stuff
         let hockeyAppKey = "ceaeecd98ddc41c49319215c20370ca6"
         let manager = BITHockeyManager.shared()
         let authenticator = manager.authenticator
         manager.configure(withIdentifier: hockeyAppKey)
         // Do some additional configuration if needed here
+        // TODO: Handle error cases for wrong authentication types and failed authentications
+        
+
+
         manager.start()
         authenticator.authenticateInstallation()
 
