@@ -13,7 +13,8 @@ An example of how to use the HockeyApp platform to deploy users, authenticate th
 6.  If you haven't yet, create the XCode project that will be used
 7.  In the Hockey app, integrate Hockey into the XCode project by going to `Project > Integrate with Project` and select the XCode project to integrate the Hockey SDK into and verify the project folder location
 8.  The hockey app will now ask to add a `run script` to the end of your XCode project's `build phase`. From the pictures below, *(1.)* select the project from the navigator view, *(2.)* select the project's `build phases` *(3.)* use the plus button to add a *(4.)* `run script` and finally paste the script below into the script text field like the image below. Then build the project, and if all went well the hockey companion app will have proceeded to the next step
--   ```
+
+```
 FILE="${SRCROOT}/HockeySDK-iOS/BuildAgent"
 if [ -f "$FILE" ]; then
     "$FILE"
