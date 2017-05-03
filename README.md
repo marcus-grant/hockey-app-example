@@ -106,7 +106,8 @@ i@discardableResult
     return lastResultCode == noErr
 }
 ```
-
+- Using the above library's source code to reset all keys **WORKED!!!!!**
+- Make a demo app that demonstrates visually loging in and invalidating the user and potentially displaying auth info after logging in
 
 ### References
 [Hockey Integration App for OSX Documentation](https://support.hockeyapp.net/kb/client-integration-ios-mac-os-x-tvos/hockeyapp-for-mac-os-x#advancedsetup)

@@ -6,11 +6,18 @@
 //  Copyright © 2017 Marcus Grant. All rights reserved.
 //
 
+import Foundation
+import Security
 import UIKit
 import HockeySDK
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+
+    var lastQueryParameters: [String: Any]?
+    var lastResultCode: OSStatus = noErr
+    var accessGroup: String?
+    open var synchronizable: Bool = false
 
     var window: UIWindow?
 
@@ -20,6 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //FIXME: Check Restrict and Frequency flags of authenticator or manager
         let hockeyAppKey = "ceaeecd98ddc41c49319215c20370ca6"
         initHockey(with: hockeyAppKey, identificationType: .webAuth)
+//        resetKeychain()
 
         return true
     }
@@ -91,7 +99,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func resetKeychain() {
-        
+        print("Resetting all keychain entries for app...")
+        let isReset = clear()
+        var output = "Keychain reset "
+        if isReset { output += "succeeded" }
+        else { output += "failed" }
+        print(output)
     }
 
     func printAllAuthInfo() {
@@ -109,6 +122,70 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("userEmail = \(String(describing: userEmail))")
     }
 
+    //MARK: - Keychain helpers
+    @discardableResult
+    open func clear() -> Bool {
+        var query: [String: Any] = [ kSecClass as String : kSecClassGenericPassword ]
+        query = addAccessGroupWhenPresent(query)
+        query = addSynchronizableIfRequired(query, addingItems: false)
+        lastQueryParameters = query
+
+        lastResultCode = SecItemDelete(query as CFDictionary)
+
+        return lastResultCode == noErr
+    }
+
+    func addAccessGroupWhenPresent(_ items: [String: Any]) -> [String: Any] {
+        guard let accessGroup = accessGroup else { return items }
+
+        var result: [String: Any] = items
+        result[KeychainSwiftConstants.accessGroup] = accessGroup
+        return result
+    }
+
+    func addSynchronizableIfRequired(_ items: [String: Any], addingItems: Bool) -> [String: Any] {
+        if !synchronizable { return items }
+        var result: [String: Any] = items
+        result[KeychainSwiftConstants.attrSynchronizable] = addingItems == true ? true : kSecAttrSynchronizableAny
+        return result
+    }
+
+
 
 }
 
+
+/// Constants used by the library
+public struct KeychainSwiftConstants {
+    /// Specifies a Keychain access group. Used for sharing Keychain items between apps.
+    public static var accessGroup: String { return toString(kSecAttrAccessGroup) }
+
+    /**
+
+     A value that indicates when your app needs access to the data in a keychain item. The default value is AccessibleWhenUnlocked. For a list of possible values, see KeychainSwiftAccessOptions.
+
+     */
+    public static var accessible: String { return toString(kSecAttrAccessible) }
+
+    /// Used for specifying a String key when setting/getting a Keychain value.
+    public static var attrAccount: String { return toString(kSecAttrAccount) }
+
+    /// Used for specifying synchronization of keychain items between devices.
+    public static var attrSynchronizable: String { return toString(kSecAttrSynchronizable) }
+
+    /// An item class key used to construct a Keychain search dictionary.
+    public static var klass: String { return toString(kSecClass) }
+
+    /// Specifies the number of values returned from the keychain. The library only supports single values.
+    public static var matchLimit: String { return toString(kSecMatchLimit) }
+
+    /// A return data type used to get the data from the Keychain.
+    public static var returnData: String { return toString(kSecReturnData) }
+
+    /// Used for specifying a value when setting a Keychain value.
+    public static var valueData: String { return toString(kSecValueData) }
+
+    static func toString(_ value: CFString) -> String {
+        return value as String
+    }
+}
