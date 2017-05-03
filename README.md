@@ -31,7 +31,7 @@ fi
 13.  Next, the Hockey wizard will ask you to insert some code involved in authenticating the app with the Hockey platform in your app's `AppDelegate`
 -  **Objective-C**
 
-```
+```objective-c
 @import HockeySDK;
 //...
 -application:didFinishLaunchingWithOptions:
@@ -43,8 +43,7 @@ fi
   authenticateInstallation];
 ```
 
-**Swift**
-```
+```swift
 import HockeySDK
 //...
 func application(application:didFinishLaunchingWithOptions launchOptions) -> Bool {
@@ -88,7 +87,16 @@ Hockey integrated app. **insert app-archive-export.png**. Now you are presented 
 
 **Add app screenshots of succesful web auths**
 
-```
+### De-authenticate Notes 
+- Until I find out what it is that prevents a Hockey client from invalidating the previous hockey login on the local device it could be very useful to know how to completely clean iOS simulator instances and XCode caches. [This stackoverflow response](2) details a very thorough way to completely clean any lingering data on the iOS simulator and associated XCode caches.
+-  Apparently automatic authentication strategies `BITAuthenticatorIdentificationTypeDevice` & `BITAuthenticatorIdentificationTypeWebAuth` use embedded data inside the iTunes Artwork PNG, the app icon basically as it is uploaded to the Hockey server as a means to authenticate. Make sure this is isn't the case anymore.
+    -  From [this hockey article](3)
+    -  There is a note that maybe this isn't the case anymore since iOS 8 `2014/09/17: Automatic authentication no longer works on iOS 8 as Apple has removed the iTunesArtwork file.` from [3](3)
+    
+
 
 ### References
 [Hockey Integration App for OSX Documentation](https://support.hockeyapp.net/kb/client-integration-ios-mac-os-x-tvos/hockeyapp-for-mac-os-x#advancedsetup)
+[2]: http://stackoverflow.com/questions/5714372/how-to-empty-caches-and-clean-all-targets-xcode-4 "StackOverflow solution to clearing XCode & Simulator Caches"
+[3]: https://www.hockeyapp.net/blog/2014/01/31/automatic-authentication-ios.html "Hockey Auto Authentication through itunes artwork"
+
