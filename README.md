@@ -65,4 +65,4 @@ return true
 ```
 
 ### References
-[]
+[Hockey Integration App for OSX Documentation](https://support.hockeyapp.net/kb/client-integration-ios-mac-os-x-tvos/hockeyapp-for-mac-os-x#advancedsetup)
