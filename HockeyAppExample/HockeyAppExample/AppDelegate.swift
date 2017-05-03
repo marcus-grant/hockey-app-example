@@ -15,25 +15,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-
-        // TODO: Facade class to handle all HockeyAuthentication stuff
-        // TODO: Investigate why you can't use these below constant references to invoke the manager/auth funcs
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        //FIXME: Check Restrict and Frequency flags of authenticator or manager
         let hockeyAppKey = "ceaeecd98ddc41c49319215c20370ca6"
-        let manager = BITHockeyManager.shared()
-        let authenticator = manager.authenticator
-        BITHockeyManager.shared().configure(withIdentifier: hockeyAppKey)
-        // Do some additional configuration if needed here
-        // TODO: Handle error cases for wrong authentication types and failed authentications
-        // TODO: Investigate embeded UDID on Artwork from http://bit.ly/2pDvxug
-
-        // MARK: Configure the web authentication method for the hockey manager
-        BITHockeyManager.shared().authenticator.identificationType = .webAuth
-
-
-        BITHockeyManager.shared().start()
-        BITHockeyManager.shared().authenticator.authenticateInstallation()
-
+        initHockey(with: hockeyAppKey, identificationType: .webAuth)
 
         return true
     }
@@ -41,12 +27,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK - App link url callback needed by the HockeyApp Authenticator
     func application(_ application: UIApplication, open url: URL,
                      sourceApplication: String?, annotation: Any) -> Bool {
-        //MARK - I create a constant reference to the shared manager's authenticator to keep deep instance references brief
-        let authenticator = BITHockeyManager.shared().authenticator
+        //MARK I create a constant reference to the shared manager's authenticator to keep deep instance references brief
+        //let authenticator = BITHockeyManager.shared().authenticator
         // If the web authentication was successful...
         if BITHockeyManager.shared().authenticator.handleOpen(url, sourceApplication: sourceApplication, annotation: annotation) {
+            print("Authentification callback succesful!")
             return true
         } else { // If the web authentication fails...
+            print("Authentification callback failed!")
             return false
         }
     }
@@ -71,6 +59,54 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+
+    //MARK: - Hockey Helpers, use these for facade class later
+
+    func initHockey(with appToken: String, identificationType: BITAuthenticatorIdentificationType) {
+        // TODO: Facade class to handle all HockeyAuthentication stuff
+        // TODO: Investigate why you can't use these below constant references to invoke the manager/auth funcs
+
+        //MARK: - HockeyManager & HockeyAuthenticator setups/configs/initialization
+        //let manager = BITHockeyManager.shared()
+        //let authenticator = manager.authenticator
+        BITHockeyManager.shared().configure(withIdentifier: appToken)
+        // Do some additional configuration if needed here
+        // TODO: Handle error cases for wrong authentication types and failed authentications
+        // TODO: Investigate embeded UDID on Artwork from http://bit.ly/2pDvxug
+
+        // MARK: Configure the web authentication method for the hockey manager
+        BITHockeyManager.shared().authenticator.identificationType = .webAuth
+
+        //TODO: 1. will this help us? 2. Is this ok with app workflow of GMA?
+        BITHockeyManager.shared().authenticator.restrictApplicationUsage = true
+        BITHockeyManager.shared().authenticator.restrictionEnforcementFrequency = .onAppActive //MARK: either .onAppActive .onFirstLaunch
+
+
+
+        BITHockeyManager.shared().start()
+        BITHockeyManager.shared().authenticator.authenticateInstallation()
+        printAllAuthInfo()
+    }
+
+
+    func resetKeychain() {
+        
+    }
+
+    func printAllAuthInfo() {
+        let isIdentified = BITHockeyManager.shared().authenticator.isIdentified
+        let isValidated = BITHockeyManager.shared().authenticator.isValidated
+//        BITHockeyManager.shared().authenticator.identify(completion: 
+        let userID = BITHockeyManager.shared().userID
+        let username = BITHockeyManager.shared().userName
+        let userEmail = BITHockeyManager.shared().userEmail
+        print("Current Debug for manager & authenticator")
+        print("isIdentified = \(isIdentified)")
+        print("isValidated = \(isValidated)")
+        print("username = \(String(describing: username))")
+        print("userID = \(String(describing: userID))")
+        print("userEmail = \(String(describing: userEmail))")
     }
 
 

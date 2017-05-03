@@ -92,11 +92,24 @@ Hockey integrated app. **insert app-archive-export.png**. Now you are presented 
 -  Apparently automatic authentication strategies `BITAuthenticatorIdentificationTypeDevice` & `BITAuthenticatorIdentificationTypeWebAuth` use embedded data inside the iTunes Artwork PNG, the app icon basically as it is uploaded to the Hockey server as a means to authenticate. Make sure this is isn't the case anymore.
     -  From [this hockey article](3)
     -  There is a note that maybe this isn't the case anymore since iOS 8 `2014/09/17: Automatic authentication no longer works on iOS 8 as Apple has removed the iTunesArtwork file.` from [3](3)
-    
+- From the [KeychainSwift Library][KeychainSwift], there is a function that supposedly deletes all keychain entries:
+```swift
+i@discardableResult
+  open func clear() -> Bool {
+    var query: [String: Any] = [ kSecClass as String : kSecClassGenericPassword ]
+    query = addAccessGroupWhenPresent(query)
+    query = addSynchronizableIfRequired(query, addingItems: false)
+    lastQueryParameters = query
+                          
+    lastResultCode = SecItemDelete(query as CFDictionary)
+                                  
+    return lastResultCode == noErr
+}
+```
 
 
 ### References
 [Hockey Integration App for OSX Documentation](https://support.hockeyapp.net/kb/client-integration-ios-mac-os-x-tvos/hockeyapp-for-mac-os-x#advancedsetup)
 [2]: http://stackoverflow.com/questions/5714372/how-to-empty-caches-and-clean-all-targets-xcode-4 "StackOverflow solution to clearing XCode & Simulator Caches"
 [3]: https://www.hockeyapp.net/blog/2014/01/31/automatic-authentication-ios.html "Hockey Auto Authentication through itunes artwork"
-
+[KeychainSwift]: https://github.com/marketplacer/keychain-swift/blob/master/Sources/KeychainSwift.swift "KeychainSwift Source Code"
