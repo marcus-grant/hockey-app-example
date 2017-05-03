@@ -61,6 +61,32 @@ return true
 **You are now ready to work on an app with the HockeySDK integrated!**
 
 
+### Setting up web authentication
+
+[The HockeySDK for iOS](https://support.hockeyapp.net/kb/client-integration-ios-mac-os-x-tvos/authenticating-users-on-ios) has a few authentication methods that need to be configured in the configuration manager before it gets started with `manager.start()`. The documentation linked indicates 5 ways to authenticate users, for now we're only interested in authentication using a Safari Web View Controller created by the SDK to handle the authentication. To do this, before starting the shared
+`BITAuthenticator` instance, set the authenticator member variable `identificationType` to the `BITAuthenticatorIdentificationType` `.webAuth`. This will now force the app to identify the user using the app by opening up a safari web view before anything else happens in the app to have the user log in. If this is done before configuring an app link call back in the XCode project the login will fail after authorization because the app won't know what to do with the link that gets sent
+after. To deal with this add the function below:
+
+**This code block has changed, update it**
+```
+// MARK - App link url callback needed by the HockeyApp Authenticator
+    func application(_ application: UIApplication, open url: URL,
+                    sourceApplication: String?, annotation: Any) -> Bool {
+        //MARK - I create a constant reference to the shared manager's authenticator to keep deep instance references brief
+        let authenticator = BITHockeyManager.shared().authenticator
+        //MARK - If anything else needs to be done based on whether the web authentication completes do it before return
+        return authenticator.handleOpen(url, sourceApplication: sourceApplication, annotation: annotation)
+    }
+```
+
+
+Then make sure you have the right URL scheme applied to your `info.plist`. The default url scheme needed is going to have the letters "ha" then immediately after, the APPID you used to authenticate the app for the first time. Look at the image below to see what the plist should look like. **insert new-url-scheme-plist.png**
+
+Now to complete the authentication of the user, the app binary will have to actually be present on the hockey servers. In XCode, ensure that the build target is set to `Generic iOS Device`. Then in the XCode menu bar go to `Product > Archive`. This will   bring up the Archiver view of XCode which is how you create iOS application binaries or archives. In this case, we're after a completed the IPA of the first version of the app.
+
+Hockey integrated app. **insert app-archive-export.png**. Now you are presented with a few options on how you can export the app archive. If you are going to use the `Enterprise Deployment` then you are going to need permissions set for your Apple Developer account, or your teams developer account that allows you to do so. Otherwise, like this app example, you can always select the `Developer Deployment` as an option to get an ipa to upload to hockey. **insert app-export-options**.  You will then need to specify a development team or account that you can upload with. I haven't tried without a developer account yet, so it may be possible that without one it's impossible to export an app archive. Now finally a screen will be presented to select which devices app archives should be compiled and archived for. Select `Export one app for all compatible devices` as a safe default. Just be prepared to wait for all the app versions to be compiled at once. Then a final screen to verify app entitlements based on your user profile **include manifest for OTA installation option???**.  Now go into the **insert dashboard link** and go to your app's overview page. There will be an `Add version` button that gets used to add all new app versions as IPAs like were just created. Go there and drag & drop the newly create IPA and follow the instructions for adding it. It may be useful to add app users at this point, including any invites that may be needed to be sent out. This could be useful if the same account that was used to add the app may not be the best one to test the authentication or other HockeySDK features. And that's it! The XCode project should now be able to run, bring up a web view to login as a Hockey user using either the hockeyapp email address and password, or by using single sign on with either Google, Github, Facebook, or **insert 4th**.
+
+**Add app screenshots of succesful web auths**
 
 ```
 

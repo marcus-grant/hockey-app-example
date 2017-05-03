@@ -18,20 +18,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
 
         // TODO: Facade class to handle all HockeyAuthentication stuff
+        // TODO: Investigate why you can't use these below constant references to invoke the manager/auth funcs
         let hockeyAppKey = "ceaeecd98ddc41c49319215c20370ca6"
         let manager = BITHockeyManager.shared()
         let authenticator = manager.authenticator
-        manager.configure(withIdentifier: hockeyAppKey)
+        BITHockeyManager.shared().configure(withIdentifier: hockeyAppKey)
         // Do some additional configuration if needed here
         // TODO: Handle error cases for wrong authentication types and failed authentications
-        
+        // TODO: Investigate embeded UDID on Artwork from http://bit.ly/2pDvxug
+
+        // MARK: Configure the web authentication method for the hockey manager
+        BITHockeyManager.shared().authenticator.identificationType = .webAuth
 
 
-        manager.start()
-        authenticator.authenticateInstallation()
+        BITHockeyManager.shared().start()
+        BITHockeyManager.shared().authenticator.authenticateInstallation()
 
 
         return true
+    }
+
+    // MARK - App link url callback needed by the HockeyApp Authenticator
+    func application(_ application: UIApplication, open url: URL,
+                     sourceApplication: String?, annotation: Any) -> Bool {
+        //MARK - I create a constant reference to the shared manager's authenticator to keep deep instance references brief
+        let authenticator = BITHockeyManager.shared().authenticator
+        // If the web authentication was successful...
+        if BITHockeyManager.shared().authenticator.handleOpen(url, sourceApplication: sourceApplication, annotation: annotation) {
+            return true
+        } else { // If the web authentication fails...
+            return false
+        }
     }
 
     func applicationWillResignActive(_ application: UIApplication) {
